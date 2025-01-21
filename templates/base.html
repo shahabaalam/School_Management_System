@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}KD Academy{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+
+<body>
+    <header>
+        <h1>KD Academy</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">Home</a>
+            {% if session.get('user_id') %}
+            {% if session.get('role') == 'admin' %}
+            | <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+            {% elif session.get('role') == 'teacher' %}
+            | <a href="{{ url_for('teacher_dashboard') }}">Teacher Dashboard</a>
+            {% elif session.get('role') == 'student' %}
+            | <a href="{{ url_for('student_dashboard') }}">Student Dashboard</a>
+            {% endif %}
+            | <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+            | <a href="{{ url_for('register') }}">Register</a>
+            {% endif %}
+        </nav>
+        <hr>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <hr>
+        <p>&copy; 2025 KD Academy - All rights reserved.</p>
+    </footer>
+</body>
+
+</html>

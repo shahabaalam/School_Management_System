@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Enroll/Edit Course{% endblock %}
+
+{% block content %}
+{% if not is_edit %}
+<h2>Enroll in {{ course.name }} ({{ course.semester }})</h2>
+<form method="POST">
+    <p>Confirm enrollment in this course?</p>
+    <button type="submit">Confirm</button>
+</form>
+{% else %}
+<!-- Admin editing a course -->
+<h2>Edit Course: {{ course.name }}</h2>
+<form method="POST" class="login-form">
+
+    <div>
+        <label>Course Name</label><br>
+        <input type="text" name="name" value="{{ course.name }}" required>
+    </div>
+    <div>
+        <label>School</label><br>
+        <input type="text" name="school" value="{{ course.school }}">
+    </div>
+    <div>
+        <label>Program</label><br>
+        <input type="text" name="program" value="{{ course.program }}">
+    </div>
+    <div>
+        <label>Year</label><br>
+        <input type="text" name="year" value="{{ course.year }}">
+    </div>
+    <div>
+        <label>Semester</label><br>
+        <input type="text" name="semester" value="{{ course.semester }}">
+    </div>
+
+    <button type="submit">Save</button>
+</form>
+{% endif %}
+{% endblock %}

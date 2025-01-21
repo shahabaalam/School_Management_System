@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Mark Attendance - {{ course.name }}{% endblock %}
+
+{% block content %}
+<h2>Mark Attendance for {{ course.name }} ({{ course.semester }})</h2>
+<form method="POST" action="{{ url_for('process_attendance', course_id=course.id) }}">
+    <div>
+        <label for="attendance_date">Date:</label>
+        <input type="date" id="attendance_date" name="attendance_date" required>
+    </div>
+    <hr>
+    <table>
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Student ID</th>
+                <th>Present</th>
+                <th>Absent</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in enrollments %}
+            <tr>
+                <td>{{ e.student_name }}</td>
+                <td>{{ e.student_id }}</td>
+                <td>
+                    <input type="radio" name="status_{{ e.enrollment_id }}" value="present" required>
+                </td>
+                <td>
+                    <input type="radio" name="status_{{ e.enrollment_id }}" value="absent" required>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <button type="submit">Submit Attendance</button>
+</form>
+{% endblock %}

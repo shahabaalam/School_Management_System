@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Mark Attendance - KD Academy</title>
+</head>
+
+<body>
+    <h1>Mark Attendance (Enrollment ID: {{ enrollment_id }})</h1>
+    <form method="POST">
+        <p>Date: <input type="text" name="date" placeholder="YYYY-MM-DD" required></p>
+        <p>Status:
+            <select name="status">
+                <option value="present">Present</option>
+                <option value="absent">Absent</option>
+            </select>
+        </p>
+        <button type="submit">Submit</button>
+    </form>
+
+    <p><a href="{{ url_for('my_enrollments') }}">Back to My Enrollments</a></p>
+</body>
+
+</html>

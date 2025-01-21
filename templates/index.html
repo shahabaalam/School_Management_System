@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}KD Academy - Home{% endblock %}
+
+{% block content %}
+<div class="home-page">
+    <h2>Welcome to KD Academy</h2>
+    <p>Choose your login:</p>
+    <ul>
+        <li><a href="{{ url_for('admin_login') }}">Admin Login</a></li>
+        <li><a href="{{ url_for('teacher_login') }}">Teacher Login</a></li>
+        <li><a href="{{ url_for('student_login') }}">Student Login</a></li>
+    </ul>
+    <p>Or <a href="{{ url_for('register') }}">Register</a> if you don't have an account.</p>
+</div>
+{% endblock %}

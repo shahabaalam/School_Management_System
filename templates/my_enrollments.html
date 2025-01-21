@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}My Enrollments{% endblock %}
+
+{% block content %}
+<h2>My Enrolled Courses</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Course Name</th>
+            <th>School</th>
+            <th>Program</th>
+            <th>Year</th>
+            <th>Semester</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for e in enrollments %}
+        <tr>
+            <td>{{ e.course_name }}</td>
+            <td>{{ e.school }}</td>
+            <td>{{ e.program }}</td>
+            <td>{{ e.year }}</td>
+            <td>{{ e.semester }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Courses - KD Academy{% endblock %}
+
+{% block content %}
+<h2>Courses</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>School</th>
+            <th>Program</th>
+            <th>Year</th>
+            <th>Semester</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for course in courses %}
+        <tr>
+            <td>{{ course.name }}</td>
+            <td>{{ course.school }}</td>
+            <td>{{ course.program }}</td>
+            <td>{{ course.year }}</td>
+            <td>{{ course.semester }}</td>
+            <td>
+                {% if is_teacher %}
+                <a href="{{ url_for('course_attendance', course_id=course.id) }}">Mark Attendance</a>
+                {% else %}
+                <a href="{{ url_for('enroll', course_id=course.id) }}">Enroll</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
