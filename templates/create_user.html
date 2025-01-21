@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Create User (Admin){% endblock %}
+
+{% block content %}
+<h2>Create New Teacher/Student</h2>
+<form method="POST" class="login-form">
+    <label>Username</label><br>
+    <input type="text" name="username" required><br><br>
+
+    <label>Password</label><br>
+    <input type="password" name="password" required><br><br>
+
+    <label>Role</label><br>
+    <select name="role">
+        <option value="teacher">Teacher</option>
+        <option value="student">Student</option>
+    </select>
+    <br><br>
+
+    <button type="submit">Create</button>
+</form>
+{% endblock %}

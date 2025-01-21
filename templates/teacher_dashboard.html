@@ -1,8 +1,14 @@
-<!-- templates/teacher_dashboard.html -->
+<!-- templates/teacher_dashboard.html (Updated) -->
 {% extends "base.html" %}
 {% block title %}Teacher Dashboard{% endblock %}
 
 {% block content %}
 <h2>Teacher Dashboard</h2>
-<p>Welcome, Teacher! Use the navigation links above to access your features.</p>
+<ul>
+    <li><a href="{{ url_for('teacher_manage_attendance') }}">Manage Course Attendance</a></li>
+    <!-- Existing link for marking daily attendance as before -->
+
+    <!-- NEW link for viewing/updating all attendance records -->
+    <li><a href="{{ url_for('teacher_all_attendance') }}">View/Update All Attendance Records</a></li>
+</ul>
 {% endblock %}

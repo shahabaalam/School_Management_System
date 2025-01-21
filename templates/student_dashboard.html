@@ -1,3 +1,4 @@
+<!-- templates/student_dashboard.html (Updated) -->
 {% extends "base.html" %}
 {% block title %}Student Dashboard{% endblock %}
 
@@ -6,5 +7,8 @@
 <ul>
     <li><a href="{{ url_for('courses') }}">View & Enroll in Courses</a></li>
     <li><a href="{{ url_for('my_enrollments') }}">My Enrollments</a></li>
+
+    <!-- NEW link for viewing attendance -->
+    <li><a href="{{ url_for('my_attendance') }}">View My Attendance</a></li>
 </ul>
 {% endblock %}

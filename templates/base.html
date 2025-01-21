@@ -13,19 +13,19 @@
         <h1>KD Academy</h1>
         <nav>
             <a href="{{ url_for('index') }}">Home</a>
+
             {% if session.get('user_id') %}
-            <!-- If user is logged in -->
-            {% if session.get('role') == 'admin' %}
+            <!-- If logged in, show role-based dash link & logout -->
+            {% if session['role'] == 'admin' %}
             | <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
-            {% elif session.get('role') == 'teacher' %}
+            {% elif session['role'] == 'teacher' %}
             | <a href="{{ url_for('teacher_dashboard') }}">Teacher Dashboard</a>
-            {% elif session.get('role') == 'student' %}
+            {% elif session['role'] == 'student' %}
             | <a href="{{ url_for('student_dashboard') }}">Student Dashboard</a>
             {% endif %}
             | <a href="{{ url_for('logout') }}">Logout</a>
             {% else %}
-            <!-- If user is not logged in -->
-            | <a href="{{ url_for('register') }}">Register</a>
+            <!-- Not logged in; show no registration link for teacher/student -->
             {% endif %}
         </nav>
         <hr>
@@ -37,7 +37,7 @@
 
     <footer>
         <hr>
-        <p>&copy; 2025 KD Academy - All rights reserved.</p>
+        <p>&copy; 2025 KD Academy. All rights reserved.</p>
     </footer>
 </body>
 

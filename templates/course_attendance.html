@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Mark Attendance - {{ course['name'] }}{% endblock %}
+{% block title %}Mark Attendance{% endblock %}
 
 {% block content %}
-<h2>Mark Attendance for {{ course['name'] }} ({{ course['semester'] }})</h2>
-<form method="POST" action="{{ url_for('process_attendance', course_id=course['id']) }}">
+<h2>Mark Attendance for {{ course.name }} ({{ course.semester }})</h2>
+<form method="POST" action="{{ url_for('process_attendance', course_id=course.id) }}">
     <div>
         <label for="attendance_date">Date:</label>
         <input type="date" id="attendance_date" name="attendance_date" required>

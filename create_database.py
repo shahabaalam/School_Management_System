@@ -42,9 +42,17 @@ def create_db():
         );
     """)
 
+    # Create default admin if none found
+    cursor.execute("SELECT * FROM users WHERE role='admin'")
+    admin_exist = cursor.fetchone()
+    if not admin_exist:
+        cursor.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+                       ("admin", "admin123", "admin"))
+        conn.commit()
+
     conn.commit()
     conn.close()
-    print("Database created successfully.")
+    print("Database schema created, default admin: admin/admin123")
 
 if __name__ == "__main__":
     create_db()
