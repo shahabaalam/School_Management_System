@@ -25,29 +25,18 @@ def init_db():
     with app.app_context():
         db = get_db()
         db.executescript("""
-        -- Users table now has extra columns for student-specific info
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL UNIQUE,
             password TEXT NOT NULL,
-            role TEXT NOT NULL,          -- 'student', 'teacher', 'admin'
-            
-            -- Student-specific fields (can be blank/NULL for teacher/admin):
-            student_id TEXT,            -- e.g., "S12345"
-            school TEXT,
-            program TEXT,
-            year TEXT,                  -- e.g., "1", "2", "3", "4"
-            semester TEXT               -- e.g., "1" or "2"
+            role TEXT NOT NULL
+            -- 'student', 'teacher', 'admin'
         );
 
-        -- Courses also have extra fields
         CREATE TABLE IF NOT EXISTS courses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            school TEXT,
-            program TEXT,
-            year TEXT,
-            semester TEXT
+            semester TEXT NOT NULL
         );
 
         CREATE TABLE IF NOT EXISTS enrollments (
@@ -75,13 +64,14 @@ def init_db():
         """)
         db.commit()
 
+
 # -----------------------------
 # GENERAL ROUTES
 # -----------------------------
 @app.route("/")
 def index():
     """
-    Homepage with quick links to Admin, Teacher, Student login,
+    Homepage with quick links to admin, teacher, and student login,
     plus a link to register.
     """
     return render_template("index.html")
@@ -89,36 +79,25 @@ def index():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     """
-    Registration page.
-    - If user chooses 'student', they must also fill in:
-      student_id, school, program, year, semester
-    - If user chooses 'teacher' or 'admin', we can store these columns as blank or NULL.
+    Single registration page.
+    In a real scenario, you may want separate ways to add admins vs. students.
     """
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        role = request.form["role"]
-
-        # Student-specific fields (may be empty if role != 'student')
-        student_id = request.form.get("student_id", "")
-        school = request.form.get("school", "")
-        program = request.form.get("program", "")
-        user_year = request.form.get("year", "")
-        user_semester = request.form.get("semester", "")
+        role = request.form["role"]  # student, teacher, admin
 
         db = get_db()
         try:
             db.execute(
-                """INSERT INTO users 
-                   (username, password, role, student_id, school, program, year, semester)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                (username, password, role, student_id, school, program, user_year, user_semester)
+                "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+                (username, password, role)
             )
             db.commit()
         except sqlite3.IntegrityError:
             return "Error: That username is already taken. Please choose another."
 
-        # Redirect to the appropriate login page
+        # After successful registration, direct them to their role-specific login
         if role == "admin":
             return redirect(url_for("admin_login"))
         elif role == "teacher":
@@ -134,9 +113,12 @@ def logout():
     session.clear()
     return redirect(url_for("index"))
 
+
 # -----------------------------
 # SEPARATE LOGIN ROUTES
 # -----------------------------
+
+# ADMIN LOGIN
 @app.route("/login/admin", methods=["GET", "POST"])
 def admin_login():
     if request.method == "POST":
@@ -159,6 +141,8 @@ def admin_login():
 
     return render_template("admin_login.html")
 
+
+# TEACHER LOGIN
 @app.route("/login/teacher", methods=["GET", "POST"])
 def teacher_login():
     if request.method == "POST":
@@ -181,6 +165,8 @@ def teacher_login():
 
     return render_template("teacher_login.html")
 
+
+# STUDENT LOGIN
 @app.route("/login/student", methods=["GET", "POST"])
 def student_login():
     if request.method == "POST":
@@ -203,12 +189,15 @@ def student_login():
 
     return render_template("student_login.html")
 
+
 # -----------------------------
 # ADMIN-ONLY ROUTES
 # -----------------------------
 @app.route("/admin/dashboard")
 def admin_dashboard():
-    """Dashboard for admin users only."""
+    """
+    Dashboard for admin users only.
+    """
     if "user_id" not in session or session.get("role") != "admin":
         return "Access Denied. Admins Only."
     return render_template("admin_dashboard.html")
@@ -216,40 +205,35 @@ def admin_dashboard():
 @app.route("/admin/manage_courses", methods=["GET", "POST"])
 def manage_courses():
     """
-    Admin can create new courses with additional info:
-      - Name
-      - School
-      - Program
-      - Year
-      - Semester
+    Admin can create, edit, delete courses here.
     """
     if "user_id" not in session or session.get("role") != "admin":
         return "Access Denied. Admins Only."
 
     db = get_db()
-    if request.method == "POST":
-        name = request.form["name"]
-        school = request.form["school"]
-        program = request.form["program"]
-        course_year = request.form["year"]
-        semester = request.form["semester"]
 
-        db.execute("""
-            INSERT INTO courses (name, school, program, year, semester)
-            VALUES (?, ?, ?, ?, ?)
-        """, (name, school, program, course_year, semester))
+    # Add new course (if POST request)
+    if request.method == "POST":
+        course_name = request.form["course_name"]
+        semester = request.form["semester"]
+        db.execute("INSERT INTO courses (name, semester) VALUES (?, ?)",
+                   (course_name, semester))
         db.commit()
         return redirect(url_for("manage_courses"))
 
-    # For GET requests, list existing courses
+    # Show existing courses
     cursor = db.execute("SELECT * FROM courses")
     courses = cursor.fetchall()
     return render_template("manage_courses.html", courses=courses)
 
 @app.route("/admin/delete_course/<int:course_id>", methods=["POST"])
 def delete_course(course_id):
+    """
+    Delete a course (admin only).
+    """
     if "user_id" not in session or session.get("role") != "admin":
         return "Access Denied. Admins Only."
+
     db = get_db()
     db.execute("DELETE FROM courses WHERE id = ?", (course_id,))
     db.commit()
@@ -257,35 +241,35 @@ def delete_course(course_id):
 
 @app.route("/admin/edit_course/<int:course_id>", methods=["GET", "POST"])
 def edit_course(course_id):
+    """
+    Edit a course (admin only).
+    """
     if "user_id" not in session or session.get("role") != "admin":
         return "Access Denied. Admins Only."
 
     db = get_db()
     if request.method == "POST":
-        name = request.form["name"]
-        school = request.form["school"]
-        program = request.form["program"]
-        course_year = request.form["year"]
+        course_name = request.form["course_name"]
         semester = request.form["semester"]
-
-        db.execute("""
-            UPDATE courses
-            SET name = ?, school = ?, program = ?, year = ?, semester = ?
-            WHERE id = ?
-        """, (name, school, program, course_year, semester, course_id))
+        db.execute("UPDATE courses SET name = ?, semester = ? WHERE id = ?",
+                   (course_name, semester, course_id))
         db.commit()
         return redirect(url_for("manage_courses"))
     else:
         cursor = db.execute("SELECT * FROM courses WHERE id = ?", (course_id,))
         course = cursor.fetchone()
+        # Reuse 'enroll.html' for editing or create a separate template
         return render_template("enroll.html", course=course, is_edit=True)
+
 
 # -----------------------------
 # TEACHER-ONLY ROUTES
 # -----------------------------
 @app.route("/teacher/dashboard")
 def teacher_dashboard():
-    """Dashboard for teacher users only."""
+    """
+    Dashboard for teacher users only.
+    """
     if "user_id" not in session or session.get("role") != "teacher":
         return "Access Denied. Teachers Only."
     return render_template("teacher_dashboard.html")
@@ -293,8 +277,8 @@ def teacher_dashboard():
 @app.route("/teacher/courses")
 def teacher_courses():
     """
-    Shows all courses for teacher. 
-    Teacher can choose any course to mark attendance.
+    List of courses (teacher may see all or just the ones they handle).
+    For simplicity, let's show all, and the teacher can pick one to mark attendance.
     """
     if "user_id" not in session or session.get("role") != "teacher":
         return "Access Denied. Teachers Only."
@@ -313,12 +297,13 @@ def course_attendance(course_id):
         return "Access Denied. Teachers Only."
 
     db = get_db()
+    # Get course details
     course_cursor = db.execute("SELECT * FROM courses WHERE id = ?", (course_id,))
     course = course_cursor.fetchone()
 
-    # All enrollments for this course
+    # Get all enrollments for this course (with student info)
     enrollment_cursor = db.execute("""
-        SELECT e.id AS enrollment_id, u.username AS student_name, u.student_id
+        SELECT e.id AS enrollment_id, u.username AS student_name
         FROM enrollments e
         JOIN users u ON e.user_id = u.id
         WHERE e.course_id = ?
@@ -329,30 +314,39 @@ def course_attendance(course_id):
 
 @app.route("/teacher/process_attendance/<int:course_id>", methods=["POST"])
 def process_attendance(course_id):
-    """POST route for teacher to record attendance for multiple students."""
+    """
+    Teacher's POST request to record attendance for multiple students at once.
+    """
     if "user_id" not in session or session.get("role") != "teacher":
         return "Access Denied. Teachers Only."
 
     date = request.form.get("attendance_date")
     db = get_db()
+
+    # For each status_<enrollment_id> in the form
     for key in request.form:
         if key.startswith("status_"):
-            enrollment_id_str = key.split("_")[1]
+            enrollment_id_str = key.split("_")[1]  # e.g. "status_3" -> "3"
             enrollment_id = int(enrollment_id_str)
             status = request.form[key]  # "present" or "absent"
+
             db.execute(
                 "INSERT INTO attendance (enrollment_id, date, status) VALUES (?, ?, ?)",
                 (enrollment_id, date, status)
             )
     db.commit()
+
     return redirect(url_for("teacher_dashboard"))
+
 
 # -----------------------------
 # STUDENT-ONLY ROUTES
 # -----------------------------
 @app.route("/student/dashboard")
 def student_dashboard():
-    """Dashboard for student users only."""
+    """
+    Dashboard for student users only.
+    """
     if "user_id" not in session or session.get("role") != "student":
         return "Access Denied. Students Only."
     return render_template("student_dashboard.html")
@@ -361,21 +355,25 @@ def student_dashboard():
 def courses():
     """
     List all available courses for student enrollment.
-    (We show all courses, but typically only a 'student' would enroll.)
+    (Public route or restricted to student? We'll allow any logged-in user, but logically for students.)
     """
     if "user_id" not in session:
         return redirect(url_for("index"))
 
+    # If strictly for students, un-comment next lines:
+    # if session.get("role") != "student":
+    #     return "Access Denied. Students Only."
+
     db = get_db()
     cursor = db.execute("SELECT * FROM courses")
     course_list = cursor.fetchall()
-    # If teacher logged in, they see a different link. If student, enrollment link.
-    is_teacher = (session.get("role") == "teacher")
-    return render_template("courses.html", courses=course_list, is_teacher=is_teacher)
+    return render_template("courses.html", courses=course_list, is_teacher=(session.get("role") == "teacher"))
 
 @app.route("/enroll/<int:course_id>", methods=["GET", "POST"])
 def enroll(course_id):
-    """Student enrolls in a course."""
+    """
+    Student enrolls in a course.
+    """
     if "user_id" not in session or session.get("role") != "student":
         return "Access Denied. Students Only."
 
@@ -395,19 +393,22 @@ def enroll(course_id):
 
 @app.route("/my_enrollments")
 def my_enrollments():
-    """Shows all courses the student is enrolled in."""
+    """
+    Shows all courses the student is enrolled in.
+    """
     if "user_id" not in session or session.get("role") != "student":
         return "Access Denied. Students Only."
 
     db = get_db()
     cursor = db.execute("""
-        SELECT e.id AS enrollment_id, c.name AS course_name, c.semester, c.school, c.program, c.year
+        SELECT e.id AS enrollment_id, c.name AS course_name, c.semester AS semester
         FROM enrollments e
         JOIN courses c ON e.course_id = c.id
         WHERE e.user_id = ?
     """, (session["user_id"],))
     enrollments = cursor.fetchall()
     return render_template("my_enrollments.html", enrollments=enrollments)
+
 
 # -----------------------------
 # MAIN ENTRY

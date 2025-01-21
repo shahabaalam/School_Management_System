@@ -7,9 +7,6 @@
     <thead>
         <tr>
             <th>Course Name</th>
-            <th>School</th>
-            <th>Program</th>
-            <th>Year</th>
             <th>Semester</th>
         </tr>
     </thead>
@@ -17,9 +14,6 @@
         {% for e in enrollments %}
         <tr>
             <td>{{ e.course_name }}</td>
-            <td>{{ e.school }}</td>
-            <td>{{ e.program }}</td>
-            <td>{{ e.year }}</td>
             <td>{{ e.semester }}</td>
         </tr>
         {% endfor %}

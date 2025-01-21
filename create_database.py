@@ -9,21 +9,13 @@ def create_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL UNIQUE,
             password TEXT NOT NULL,
-            role TEXT NOT NULL,
-            student_id TEXT,
-            school TEXT,
-            program TEXT,
-            year TEXT,
-            semester TEXT
+            role TEXT NOT NULL
         );
 
         CREATE TABLE IF NOT EXISTS courses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            school TEXT,
-            program TEXT,
-            year TEXT,
-            semester TEXT
+            semester TEXT NOT NULL
         );
 
         CREATE TABLE IF NOT EXISTS enrollments (

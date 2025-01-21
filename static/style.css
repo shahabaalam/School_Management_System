@@ -83,11 +83,6 @@ button:hover {
 }
 
 /* Forms */
-.login-form {
-    max-width: 400px;
-    margin: 1em 0;
-}
-
 .login-form div {
     margin-bottom: 1em;
 }
@@ -97,4 +92,13 @@ button:hover {
     width: 100%;
     padding: 0.5em;
     font-size: 1em;
+}
+
+.home-page ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.home-page li {
+    margin: 0.5em 0;
 }

@@ -4,56 +4,22 @@
 {% block content %}
 <h2>Create Account</h2>
 <form method="POST" class="login-form">
-
-    <!-- Basic fields -->
     <div>
         <label>Username</label><br>
         <input type="text" name="username" required>
     </div>
-
     <div>
         <label>Password</label><br>
         <input type="password" name="password" required>
     </div>
-
     <div>
         <label>Role</label><br>
-        <select name="role" required>
+        <select name="role">
             <option value="student">Student</option>
             <option value="teacher">Teacher</option>
             <option value="admin">Admin</option>
         </select>
     </div>
-
-    <!-- Student-specific fields (if user picks student, they fill these) -->
-    <hr>
-    <p>(If you're a Student, please fill the fields below. Otherwise you can leave them blank.)</p>
-
-    <div>
-        <label>Student ID</label><br>
-        <input type="text" name="student_id" placeholder="e.g. S12345">
-    </div>
-
-    <div>
-        <label>School</label><br>
-        <input type="text" name="school" placeholder="e.g. School of Computing">
-    </div>
-
-    <div>
-        <label>Program</label><br>
-        <input type="text" name="program" placeholder="e.g. BSc Computer Science">
-    </div>
-
-    <div>
-        <label>Year</label><br>
-        <input type="text" name="year" placeholder="e.g. 1, 2, 3, 4">
-    </div>
-
-    <div>
-        <label>Semester</label><br>
-        <input type="text" name="semester" placeholder="e.g. 1 or 2">
-    </div>
-
     <button type="submit">Register</button>
 </form>
 {% endblock %}

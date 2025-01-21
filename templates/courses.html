@@ -7,9 +7,6 @@
     <thead>
         <tr>
             <th>Name</th>
-            <th>School</th>
-            <th>Program</th>
-            <th>Year</th>
             <th>Semester</th>
             <th>Action</th>
         </tr>
@@ -18,9 +15,6 @@
         {% for course in courses %}
         <tr>
             <td>{{ course.name }}</td>
-            <td>{{ course.school }}</td>
-            <td>{{ course.program }}</td>
-            <td>{{ course.year }}</td>
             <td>{{ course.semester }}</td>
             <td>
                 {% if is_teacher %}
