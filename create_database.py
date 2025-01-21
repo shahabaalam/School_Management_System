@@ -9,13 +9,16 @@ def create_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL UNIQUE,
             password TEXT NOT NULL,
-            role TEXT NOT NULL
+            role TEXT NOT NULL,
+            actual_name TEXT
         );
 
         CREATE TABLE IF NOT EXISTS courses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            semester TEXT NOT NULL
+            semester TEXT NOT NULL,
+            teacher_id INTEGER,
+            FOREIGN KEY(teacher_id) REFERENCES users(id)
         );
 
         CREATE TABLE IF NOT EXISTS enrollments (
@@ -39,6 +42,14 @@ def create_db():
             enrollment_id INTEGER NOT NULL,
             grade_value TEXT NOT NULL,
             FOREIGN KEY (enrollment_id) REFERENCES enrollments(id)
+        );
+
+        CREATE TABLE IF NOT EXISTS course_resources (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            course_id INTEGER NOT NULL,
+            file_name TEXT NOT NULL,
+            file_path TEXT NOT NULL,
+            FOREIGN KEY(course_id) REFERENCES courses(id)
         );
     """)
 

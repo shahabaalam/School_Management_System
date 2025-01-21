@@ -1,4 +1,4 @@
-<!-- templates/teacher_dashboard.html (Updated) -->
+<!-- templates/teacher_dashboard.html -->
 {% extends "base.html" %}
 {% block title %}Teacher Dashboard{% endblock %}
 
@@ -6,9 +6,20 @@
 <h2>Teacher Dashboard</h2>
 <ul>
     <li><a href="{{ url_for('teacher_manage_attendance') }}">Manage Course Attendance</a></li>
-    <!-- Existing link for marking daily attendance as before -->
-
-    <!-- NEW link for viewing/updating all attendance records -->
     <li><a href="{{ url_for('teacher_all_attendance') }}">View/Update All Attendance Records</a></li>
+    <li><a href="{{ url_for('update_profile') }}">Update Profile</a></li>
+</ul>
+
+<h3>Your Courses</h3>
+<ul>
+    {% for course in your_courses %}
+    <li>
+        {{ course.name }} ({{ course.semester }})
+        <!-- Clickable button/link for managing PDFs -->
+        <a href="{{ url_for('teacher_course_resources', course_id=course.id) }}">
+            <button type="button">Manage PDFs</button>
+        </a>
+    </li>
+    {% endfor %}
 </ul>
 {% endblock %}

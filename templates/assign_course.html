@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Assign Course{% endblock %}
+{% block content %}
+<h2>Assign Course to Teacher</h2>
+<form method="POST">
+    <label>Course:</label><br>
+    <select name="course_id" required>
+        {% for course in courses %}
+        <option value="{{ course.id }}">{{ course.name }} ({{ course.semester }})</option>
+        {% endfor %}
+    </select><br><br>
+
+    <label>Teacher:</label><br>
+    <select name="teacher_id" required>
+        {% for teacher in teachers %}
+        <option value="{{ teacher.id }}">{{ teacher.username }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <button type="submit">Assign</button>
+</form>
+<p><a href="{{ url_for('admin_dashboard') }}">Back to Dashboard</a></p>
+{% endblock %}

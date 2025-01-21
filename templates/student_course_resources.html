@@ -1,0 +1,29 @@
+<!-- templates/student_course_resources.html -->
+{% extends "base.html" %}
+{% block title %}Course PDFs{% endblock %}
+
+{% block content %}
+<h2>Course PDFs</h2>
+<table>
+    <thead>
+        <tr>
+            <th>File Name</th>
+            <th>Download</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in resources %}
+        <tr>
+            <td>{{ r.file_name }}</td>
+            <td>
+                <a href="{{ url_for('download_pdf', resource_id=r.id) }}" target="_blank" download>
+                    Download PDF
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p><a href="{{ url_for('student_dashboard') }}">Back to Dashboard</a></p>
+{% endblock %}

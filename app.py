@@ -1,9 +1,39 @@
 import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, session, g
+import os
+from flask import send_file
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key_here"  # Replace with a secure, random key
 DATABASE = "academy.db"
+
+# Add or update this in app.py:
+UPLOAD_FOLDER = 'uploads'  # or any directory name you prefer
+ALLOWED_EXTENSIONS = {'pdf'}  # only PDF files
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route("/student/download/<int:resource_id>")
+def download_pdf(resource_id):
+    if "user_id" not in session or session.get("role") != "student":
+        return "Access Denied. Student Only."
+
+    db = get_db()
+    resource = db.execute("""
+        SELECT file_path 
+        FROM course_resources 
+        WHERE id = ?
+    """, (resource_id,)).fetchone()
+
+    if not resource:
+        return "Resource not found."
+
+    # Serve the file for download
+    return send_file(resource["file_path"], as_attachment=True)
 
 def get_db():
     """Get or create a DB connection for the current context."""
@@ -75,6 +105,48 @@ def init_db():
                 ("admin", "admin123", "admin")
             )
             db.commit()
+
+@app.route("/update_profile", methods=["GET", "POST"])
+def update_profile():
+    if "user_id" not in session:
+        return redirect(url_for("index"))
+
+    user_id = session["user_id"]
+    db = get_db()
+
+    # Fetch current user details (including password)
+    user = db.execute("""
+        SELECT username, actual_name, password
+          FROM users
+         WHERE id = ?
+    """, (user_id,)).fetchone()
+
+    if request.method == "POST":
+        new_username = request.form["username"]
+        new_actual_name = request.form["actual_name"]
+        current_password_input = request.form["current_password"]
+        new_password = request.form["new_password"]
+
+        # Verify current (old) password
+        if current_password_input != user["password"]:
+            return "Error: The current password you entered is incorrect."
+
+        # If the old password matches, apply updates
+        db.execute("""
+            UPDATE users
+               SET username = ?,
+                   actual_name = ?,
+                   password = ?
+             WHERE id = ?
+        """, (new_username, new_actual_name, new_password, user_id))
+        db.commit()
+
+        # (Optional) update session if username changed
+        session["username"] = new_username
+
+        return redirect(url_for(f"{session['role']}_dashboard"))
+
+    return render_template("update_profile.html", user=user)
 
 
 # -----------------------------
@@ -156,6 +228,26 @@ def create_user():
 
     return render_template("create_user.html")
 
+@app.route("/admin/assign_course", methods=["GET", "POST"])
+def assign_course():
+    if "user_id" not in session or session.get("role") != "admin":
+        return "Access Denied. Admin Only."
+
+    db = get_db()
+    if request.method == "POST":
+        course_id = request.form["course_id"]
+        teacher_id = request.form["teacher_id"]
+        # Update the teacher assignment for the course
+        db.execute("UPDATE courses SET teacher_id = ? WHERE id = ?", (teacher_id, course_id))
+        db.commit()
+        return redirect(url_for("assign_course"))
+
+    # GET request: show form to assign courses
+    courses = db.execute("SELECT * FROM courses").fetchall()
+    teachers = db.execute("SELECT * FROM users WHERE role = 'teacher'").fetchall()
+    return render_template("assign_course.html", courses=courses, teachers=teachers)
+
+
 # MANAGE COURSES
 @app.route("/admin/manage_courses", methods=["GET", "POST"])
 def manage_courses():
@@ -233,12 +325,15 @@ def teacher_login():
 
 @app.route("/teacher/dashboard")
 def teacher_dashboard():
-    """
-    Teacher dashboard. Has link to manage course attendance.
-    """
     if "user_id" not in session or session.get("role") != "teacher":
         return "Access Denied. Teacher Only."
-    return render_template("teacher_dashboard.html")
+
+    db = get_db()
+    # Fetch courses the teacher is associated with; for now, all courses
+    your_courses = db.execute("SELECT * FROM courses").fetchall()
+
+    return render_template("teacher_dashboard.html", your_courses=your_courses)
+
 
 @app.route("/teacher/manage_attendance")
 def teacher_manage_attendance():
@@ -359,6 +454,146 @@ def update_attendance(attendance_id):
         return render_template("teacher_update_attendance.html", record=record)
 
 # -----------------------------
+# TEACHER: PDF Resource Management
+# -----------------------------
+
+@app.route("/teacher/course_resources/<int:course_id>")
+def teacher_course_resources(course_id):
+    """
+    Lists all PDFs uploaded for the specified course.
+    Teacher can see, upload, delete, or update (rename).
+    """
+    if "user_id" not in session or session.get("role") != "teacher":
+        return "Access Denied. Teacher Only."
+
+    db = get_db()
+    # Get the course info
+    course = db.execute("SELECT * FROM courses WHERE id=?", (course_id,)).fetchone()
+    if not course:
+        return "Course not found."
+
+    # Get all resources for this course
+    resources = db.execute("""
+        SELECT id, file_name, file_path
+          FROM course_resources
+         WHERE course_id = ?
+    """, (course_id,)).fetchall()
+
+    # Render a template like teacher_course_resources.html
+    return render_template("teacher_course_resources.html",
+                           course=course, resources=resources)
+
+
+@app.route("/teacher/upload_resource/<int:course_id>", methods=["POST"])
+def upload_resource(course_id):
+    """
+    Handles the PDF upload for a specific course.
+    """
+    if "user_id" not in session or session.get("role") != "teacher":
+        return "Access Denied. Teacher Only."
+
+    # Check if the course exists
+    db = get_db()
+    course = db.execute("SELECT * FROM courses WHERE id=?", (course_id,)).fetchone()
+    if not course:
+        return "Course not found."
+
+    if 'pdf_file' not in request.files:
+        return "No file part in request."
+
+    file = request.files['pdf_file']
+    if file.filename == '':
+        return "No file selected."
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        # Create a subfolder for each course if desired
+        course_folder = os.path.join(app.config['UPLOAD_FOLDER'], f"course_{course_id}")
+        os.makedirs(course_folder, exist_ok=True)
+        
+        # Full path where the file will be saved
+        file_path = os.path.join(course_folder, filename)
+        file.save(file_path)
+
+        # Insert metadata into DB
+        db.execute("""
+            INSERT INTO course_resources (course_id, file_name, file_path)
+            VALUES (?, ?, ?)
+        """, (course_id, filename, file_path))
+        db.commit()
+
+        return redirect(url_for("teacher_course_resources", course_id=course_id))
+    else:
+        return "File type not allowed. Only PDF files are permitted."
+
+
+@app.route("/teacher/delete_resource/<int:resource_id>", methods=["POST"])
+def delete_resource(resource_id):
+    """
+    Deletes a PDF resource from DB and the filesystem.
+    """
+    if "user_id" not in session or session.get("role") != "teacher":
+        return "Access Denied. Teacher Only."
+
+    db = get_db()
+    resource = db.execute("""
+        SELECT course_id, file_path
+          FROM course_resources
+         WHERE id = ?
+    """, (resource_id,)).fetchone()
+
+    if not resource:
+        return "Resource not found."
+
+    # Delete from DB
+    db.execute("DELETE FROM course_resources WHERE id=?", (resource_id,))
+    db.commit()
+
+    # Also delete the actual file if it exists
+    if os.path.exists(resource['file_path']):
+        os.remove(resource['file_path'])
+
+    return redirect(url_for("teacher_course_resources", course_id=resource['course_id']))
+
+
+@app.route("/teacher/update_resource/<int:resource_id>", methods=["GET", "POST"])
+def update_resource(resource_id):
+    """
+    Allows teacher to rename the resource file_name in DB. 
+    (This does not rename the physical file, but you could if desired.)
+    """
+    if "user_id" not in session or session.get("role") != "teacher":
+        return "Access Denied. Teacher Only."
+
+    db = get_db()
+    resource = db.execute("""
+        SELECT id, course_id, file_name, file_path
+          FROM course_resources
+         WHERE id = ?
+    """, (resource_id,)).fetchone()
+
+    if not resource:
+        return "Resource not found."
+
+    if request.method == "POST":
+        new_name = request.form["file_name"]
+        db.execute("UPDATE course_resources SET file_name = ? WHERE id = ?",
+                   (new_name, resource_id))
+        db.commit()
+
+        # Optional: If you want to rename the actual file on disk, you'd do so here.
+        # e.g. old_path = resource['file_path']
+        # new_basename = secure_filename(new_name)
+        # new_path = os.path.join(os.path.dirname(old_path), new_basename)
+        # os.rename(old_path, new_path)
+        # update DB's file_path as well
+
+        return redirect(url_for("teacher_course_resources", course_id=resource["course_id"]))
+    else:
+        # Render a small form for teacher to rename 'file_name'
+        return render_template("teacher_update_resource.html", resource=resource)
+
+# -----------------------------
 # STUDENT: LOGIN & DASHBOARD
 # -----------------------------
 @app.route("/login/student", methods=["GET", "POST"])
@@ -384,12 +619,19 @@ def student_login():
 
 @app.route("/student/dashboard")
 def student_dashboard():
-    """
-    Student dashboard. They can view courses and enroll, or see their enrollments.
-    """
     if "user_id" not in session or session.get("role") != "student":
         return "Access Denied. Student Only."
-    return render_template("student_dashboard.html")
+
+    db = get_db()
+    enrollments = db.execute("""
+        SELECT e.course_id, c.name AS course_name, c.semester
+        FROM enrollments e
+        JOIN courses c ON e.course_id = c.id
+        WHERE e.user_id = ?
+    """, (session["user_id"],)).fetchall()
+
+    return render_template("student_dashboard.html", enrollments=enrollments)
+
 
 @app.route("/courses")
 def courses():
@@ -470,6 +712,39 @@ def my_attendance():
     # Render a template (e.g., "student_view_attendance.html") to list these records
     return render_template("student_view_attendance.html", attendance_list=attendance_list)
 
+# -----------------------------
+# STUDENT: View/Download PDF Resources
+# -----------------------------
+@app.route("/student/resources/<int:course_id>")
+def student_resources(course_id):
+    """
+    Lists PDFs for a course if the student is enrolled.
+    Student can download/view them.
+    """
+    if "user_id" not in session or session.get("role") != "student":
+        return "Access Denied. Student Only."
+
+    db = get_db()
+    # Check if student is enrolled in this course
+    enrollment_check = db.execute("""
+        SELECT e.id
+          FROM enrollments e
+         WHERE e.course_id = ?
+           AND e.user_id = ?
+    """, (course_id, session["user_id"])).fetchone()
+
+    if not enrollment_check:
+        return "You are not enrolled in this course."
+
+    # Fetch all resources
+    resources = db.execute("""
+        SELECT id, file_name, file_path
+          FROM course_resources
+         WHERE course_id = ?
+    """, (course_id,)).fetchall()
+
+    # Render a template like "student_course_resources.html" listing them
+    return render_template("student_course_resources.html", resources=resources)
 
 # -----------------------------
 # MAIN ENTRY

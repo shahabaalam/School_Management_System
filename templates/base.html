@@ -23,6 +23,7 @@
             {% elif session['role'] == 'student' %}
             | <a href="{{ url_for('student_dashboard') }}">Student Dashboard</a>
             {% endif %}
+            | <a href="{{ url_for('update_profile') }}">Update Profile</a>
             | <a href="{{ url_for('logout') }}">Logout</a>
             {% else %}
             <!-- Not logged in; show no registration link for teacher/student -->
