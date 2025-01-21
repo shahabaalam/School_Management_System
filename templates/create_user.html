@@ -2,21 +2,28 @@
 {% block title %}Create User (Admin){% endblock %}
 
 {% block content %}
-<h2>Create New Teacher/Student</h2>
-<form method="POST" class="login-form">
-    <label>Username</label><br>
-    <input type="text" name="username" required><br><br>
+<section class="create-user">
+    <h2>Create New Teacher/Student</h2>
+    <form method="POST" class="create-user-form">
+        <div class="form-group">
+            <label for="username">Username</label><br>
+            <input type="text" id="username" name="username" required>
+        </div>
 
-    <label>Password</label><br>
-    <input type="password" name="password" required><br><br>
+        <div class="form-group">
+            <label for="password">Password</label><br>
+            <input type="password" id="password" name="password" required>
+        </div>
 
-    <label>Role</label><br>
-    <select name="role">
-        <option value="teacher">Teacher</option>
-        <option value="student">Student</option>
-    </select>
-    <br><br>
+        <div class="form-group">
+            <label for="role">Role</label><br>
+            <select id="role" name="role">
+                <option value="teacher">Teacher</option>
+                <option value="student">Student</option>
+            </select>
+        </div>
 
-    <button type="submit">Create</button>
-</form>
+        <button type="submit" class="submit-button">Create</button>
+    </form>
+</section>
 {% endblock %}

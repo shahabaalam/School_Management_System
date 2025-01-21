@@ -2,26 +2,32 @@
 {% block title %}Enroll in Course{% endblock %}
 
 {% block content %}
-{% if not is_edit %}
-<!-- Student enroll confirmation -->
-<h2>Enroll in {{ course.name }} - ({{ course.semester }})</h2>
-<form method="POST">
-    <p>Confirm enrollment?</p>
-    <button type="submit">Enroll</button>
-</form>
-{% else %}
-<!-- Admin editing course -->
-<h2>Edit Course: {{ course.name }}</h2>
-<form method="POST">
-    <p>
-        <label>Course Name</label><br>
-        <input type="text" name="course_name" value="{{ course.name }}" required>
-    </p>
-    <p>
-        <label>Semester</label><br>
-        <input type="text" name="semester" value="{{ course.semester }}" required>
-    </p>
-    <button type="submit">Save Changes</button>
-</form>
-{% endif %}
+<section class="enroll-page">
+    {% if not is_edit %}
+    <!-- Student enroll confirmation -->
+    <div class="enroll-confirmation">
+        <h2>Enroll in {{ course.name }} ({{ course.semester }})</h2>
+        <form method="POST" class="enroll-form">
+            <p>Confirm enrollment?</p>
+            <button type="submit" class="submit-button">Enroll</button>
+        </form>
+    </div>
+    {% else %}
+    <!-- Admin editing course -->
+    <div class="edit-course">
+        <h2>Edit Course: {{ course.name }}</h2>
+        <form method="POST" class="edit-form">
+            <div class="form-group">
+                <label for="course_name">Course Name</label><br>
+                <input type="text" id="course_name" name="course_name" value="{{ course.name }}" required>
+            </div>
+            <div class="form-group">
+                <label for="semester">Semester</label><br>
+                <input type="text" id="semester" name="semester" value="{{ course.semester }}" required>
+            </div>
+            <button type="submit" class="submit-button">Save Changes</button>
+        </form>
+    </div>
+    {% endif %}
+</section>
 {% endblock %}

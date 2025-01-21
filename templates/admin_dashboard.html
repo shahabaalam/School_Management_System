@@ -2,9 +2,14 @@
 {% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
-<h2>Admin Dashboard</h2>
-<ul>
-    <li><a href="{{ url_for('create_user') }}">Create Teacher/Student</a></li>
-    <li><a href="{{ url_for('manage_courses') }}">Manage Courses</a></li>
-</ul>
+<section class="admin-dashboard">
+    <h2>Admin Dashboard</h2>
+    <nav>
+        <ul class="dashboard-menu">
+            <li><a href="{{ url_for('create_user') }}">Create Teacher/Student</a></li>
+            <li><a href="{{ url_for('manage_courses') }}">Manage Courses</a></li>
+            <li><a href="{{ url_for('assign_course') }}">Assign Courses to Teacher</a></li>
+        </ul>
+    </nav>
+</section>
 {% endblock %}

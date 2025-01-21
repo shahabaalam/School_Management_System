@@ -1,26 +1,31 @@
-<!-- templates/student_dashboard.html -->
 {% extends "base.html" %}
 {% block title %}Student Dashboard{% endblock %}
 
 {% block content %}
-<h2>Student Dashboard</h2>
-<ul>
-    <li><a href="{{ url_for('courses') }}">View & Enroll in Courses</a></li>
-    <li><a href="{{ url_for('my_enrollments') }}">My Enrollments</a></li>
-    <li><a href="{{ url_for('my_attendance') }}">View My Attendance</a></li>
-    <li><a href="{{ url_for('update_profile') }}">Update Profile</a></li>
-</ul>
+<section class="student-dashboard">
+    <h2>Student Dashboard</h2>
+    <nav class="dashboard-nav">
+        <ul>
+            <li><a class="nav-link" href="{{ url_for('courses') }}">View & Enroll in Courses</a></li>
+            <li><a class="nav-link" href="{{ url_for('my_enrollments') }}">My Enrollments</a></li>
+            <li><a class="nav-link" href="{{ url_for('my_attendance') }}">View My Attendance</a></li>
+            <li><a class="nav-link" href="{{ url_for('update_profile') }}">Update Profile</a></li>
+            <li><a class="nav-link" href="{{ url_for('my_grades') }}">View My Grades</a></li>
+        </ul>
+    </nav>
 
-<h3>My Courses and PDFs</h3>
-<ul>
-    {% for enrollment in enrollments %}
-    <li>
-        {{ enrollment.course_name }} ({{ enrollment.semester }})
-        <!-- Clickable button for viewing PDFs -->
-        <a href="{{ url_for('student_resources', course_id=enrollment.course_id) }}">
-            <button type="button">View PDFs</button>
-        </a>
-    </li>
-    {% endfor %}
-</ul>
+    <section class="courses-pdfs">
+        <h3>My Courses and PDFs</h3>
+        <ul class="courses-list">
+            {% for enrollment in enrollments %}
+            <li class="course-item">
+                <span>{{ enrollment.course_name }} ({{ enrollment.semester }})</span>
+                <a class="pdf-button" href="{{ url_for('student_resources', course_id=enrollment.course_id) }}">
+                    <button type="button">View PDFs</button>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+</section>
 {% endblock %}

@@ -40,9 +40,11 @@ def create_db():
         CREATE TABLE IF NOT EXISTS grades (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             enrollment_id INTEGER NOT NULL,
-            grade_value TEXT NOT NULL,
-            FOREIGN KEY (enrollment_id) REFERENCES enrollments(id)
-        );
+             grade_value TEXT NOT NULL,
+             category TEXT,              -- e.g. "Assignment", "Quiz", "Midterm", etc.
+             FOREIGN KEY (enrollment_id) REFERENCES enrollments(id)
+);
+
 
         CREATE TABLE IF NOT EXISTS course_resources (
             id INTEGER PRIMARY KEY AUTOINCREMENT,

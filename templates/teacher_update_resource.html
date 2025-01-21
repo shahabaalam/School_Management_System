@@ -1,14 +1,21 @@
-<!-- teacher_update_resource.html -->
 {% extends "base.html" %}
 {% block title %}Rename PDF{% endblock %}
 
 {% block content %}
-<h2>Rename PDF for Resource #{{ resource.id }}</h2>
-<form method="POST">
-    <label>New File Name (display):</label><br>
-    <input type="text" name="file_name" value="{{ resource.file_name }}" required><br><br>
-    <button type="submit">Save</button>
-</form>
+<section class="update-resource-page">
+    <h2>Rename PDF for Resource #{{ resource.id }}</h2>
 
-<p><a href="{{ url_for('teacher_course_resources', course_id=resource.course_id) }}">Back</a></p>
+    <form method="POST" class="update-form">
+        <div class="form-group">
+            <label for="file_name">New File Name (display):</label>
+            <input type="text" id="file_name" name="file_name" value="{{ resource.file_name }}" required>
+        </div>
+
+        <button type="submit" class="submit-button">Save</button>
+    </form>
+
+    <p class="back-link">
+        <a href="{{ url_for('teacher_course_resources', course_id=resource.course_id) }}">Back</a>
+    </p>
+</section>
 {% endblock %}

@@ -1,42 +1,56 @@
-<!-- teacher_course_resources.html -->
 {% extends "base.html" %}
 {% block title %}Manage PDFs - {{ course.name }}{% endblock %}
 
 {% block content %}
-<h2>Manage PDFs for {{ course.name }} ({{ course.semester }})</h2>
+<section class="manage-resources-page">
+    <h2>Manage PDFs for {{ course.name }} ({{ course.semester }})</h2>
 
-<!-- Upload Form -->
-<form action="{{ url_for('upload_resource', course_id=course.id) }}" method="POST" enctype="multipart/form-data">
-    <label>Upload PDF:</label>
-    <input type="file" name="pdf_file" accept=".pdf">
-    <button type="submit">Upload</button>
-</form>
+    <!-- Upload Form -->
+    <div class="upload-form">
+        <form action="{{ url_for('upload_resource', course_id=course.id) }}" method="POST"
+            enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="pdf_file">Upload PDF:</label>
+                <input type="file" id="pdf_file" name="pdf_file" accept=".pdf" required>
+            </div>
+            <button type="submit" class="submit-button">Upload</button>
+        </form>
+    </div>
 
-<hr>
-<!-- List existing PDFs -->
-<table>
-    <thead>
-        <tr>
-            <th>File Name</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for res in resources %}
-        <tr>
-            <td>{{ res.file_name }}</td>
-            <td>
-                <form action="{{ url_for('delete_resource', resource_id=res.id) }}" method="POST"
-                    style="display:inline;">
-                    <button type="submit" onclick="return confirm('Delete this PDF?');">Delete</button>
-                </form>
-                |
-                <a href="{{ url_for('update_resource', resource_id=res.id) }}">Rename</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <hr>
 
-<p><a href="{{ url_for('teacher_dashboard') }}">Back to Dashboard</a></p>
+    <!-- List existing PDFs -->
+    <div class="resources-list">
+        <div class="table-responsive">
+            <table class="resources-table">
+                <thead>
+                    <tr>
+                        <th>File Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for res in resources %}
+                    <tr>
+                        <td>{{ res.file_name }}</td>
+                        <td>
+                            <form action="{{ url_for('delete_resource', resource_id=res.id) }}" method="POST"
+                                class="inline-form" onsubmit="return confirm('Delete this PDF?');">
+                                <button type="submit" class="delete-button">Delete</button>
+                            </form>
+                            <span> | </span>
+                            <a class="rename-link"
+                                href="{{ url_for('update_resource', resource_id=res.id) }}">Rename</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <p class="back-link">
+        <a href="{{ url_for('teacher_dashboard') }}">Back to Dashboard</a>
+    </p>
+</section>
 {% endblock %}

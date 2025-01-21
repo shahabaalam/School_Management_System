@@ -2,12 +2,21 @@
 {% block title %}KD Academy - Home{% endblock %}
 
 {% block content %}
-<h2>Welcome to KD Academy</h2>
-<p>Select your role to log in:</p>
-<ul>
-    <li><a href="{{ url_for('admin_login') }}">Admin Login</a></li>
-    <li><a href="{{ url_for('teacher_login') }}">Teacher Login</a></li>
-    <li><a href="{{ url_for('student_login') }}">Student Login</a></li>
-</ul>
-<p>Admin default credentials: <strong>admin / admin123</strong> (if none existed).</p>
+<section class="home-page">
+    <div class="card text-center">
+        <h2 class="mb-1">Welcome to KD Academy</h2>
+        <p>Please choose your role to log in:</p>
+        <div class="role-buttons mt-2">
+            <a href="{{ url_for('admin_login') }}" class="role-link">
+                <button type="button" class="login-button">Admin Login</button>
+            </a>
+            <a href="{{ url_for('teacher_login') }}" class="role-link">
+                <button type="button" class="login-button">Teacher Login</button>
+            </a>
+            <a href="{{ url_for('student_login') }}" class="role-link">
+                <button type="button" class="login-button">Student Login</button>
+            </a>
+        </div>
+    </div>
+</section>
 {% endblock %}

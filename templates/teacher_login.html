@@ -2,14 +2,20 @@
 {% block title %}Teacher Login{% endblock %}
 
 {% block content %}
-<h2>Teacher Login</h2>
-<form method="POST" class="login-form">
-    <label>Username</label><br>
-    <input type="text" name="username" required><br><br>
+<section class="login-page">
+    <h2>Teacher Login</h2>
+    <form method="POST" class="login-form">
+        <div class="form-group">
+            <label for="username">Username</label><br>
+            <input type="text" id="username" name="username" required>
+        </div>
 
-    <label>Password</label><br>
-    <input type="password" name="password" required><br><br>
+        <div class="form-group">
+            <label for="password">Password</label><br>
+            <input type="password" id="password" name="password" required>
+        </div>
 
-    <button type="submit">Login</button>
-</form>
+        <button type="submit" class="submit-button">Login</button>
+    </form>
+</section>
 {% endblock %}

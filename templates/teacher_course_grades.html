@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Manage Grades - {{ course.name }}{% endblock %}
+
+{% block content %}
+<section class="manage-grades-page">
+    <h2>Manage Grades for {{ course.name }} ({{ course.semester }})</h2>
+
+    <form method="POST" action="{{ url_for('submit_grades', course_id=course.id) }}" class="grades-form">
+        <div class="table-responsive">
+            <table class="grades-management-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Assignment</th>
+                        <th>Quiz</th>
+                        <th>Project</th>
+                        <th>Midterm</th>
+                        <th>Final</th>
+                        <!-- Add more categories as needed -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in enrollments %}
+                    <tr>
+                        <td>{{ e.actual_name or e.username }}</td>
+                        <td>
+                            <input type="text" name="grade_{{ e.enrollment_id }}_Assignment"
+                                value="{{ grade_dict[e.enrollment_id, 'Assignment'] if (e.enrollment_id, 'Assignment') in grade_dict else '' }}"
+                                class="grade-input">
+                        </td>
+                        <td>
+                            <input type="text" name="grade_{{ e.enrollment_id }}_Quiz"
+                                value="{{ grade_dict[e.enrollment_id, 'Quiz'] if (e.enrollment_id, 'Quiz') in grade_dict else '' }}"
+                                class="grade-input">
+                        </td>
+                        <td>
+                            <input type="text" name="grade_{{ e.enrollment_id }}_Project"
+                                value="{{ grade_dict[e.enrollment_id, 'Project'] if (e.enrollment_id, 'Project') in grade_dict else '' }}"
+                                class="grade-input">
+                        </td>
+                        <td>
+                            <input type="text" name="grade_{{ e.enrollment_id }}_Midterm"
+                                value="{{ grade_dict[e.enrollment_id, 'Midterm'] if (e.enrollment_id, 'Midterm') in grade_dict else '' }}"
+                                class="grade-input">
+                        </td>
+                        <td>
+                            <input type="text" name="grade_{{ e.enrollment_id }}_Final"
+                                value="{{ grade_dict[e.enrollment_id, 'Final'] if (e.enrollment_id, 'Final') in grade_dict else '' }}"
+                                class="grade-input">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <button type="submit" class="submit-button">Submit Grades</button>
+    </form>
+
+    <p class="back-link">
+        <a href="{{ url_for('teacher_dashboard') }}">Back to Dashboard</a>
+    </p>
+</section>
+{% endblock %}

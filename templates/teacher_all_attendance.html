@@ -1,36 +1,40 @@
-<!-- templates/teacher_all_attendance.html -->
 {% extends "base.html" %}
 {% block title %}All Attendance Records{% endblock %}
 
 {% block content %}
-<h2>All Attendance Records</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Student</th>
-            <th>Course</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for record in attendance_records %}
-        <tr>
-            <td>{{ record.date }}</td>
-            <td>{{ record.student_name }}</td>
-            <td>{{ record.course_name }}</td>
-            <td>{{ record.status }}</td>
-            <td>
-                <a href="{{ url_for('update_attendance', attendance_id=record.attendance_id) }}">
-                    Update
-                </a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<!-- Link back to Teacher Dashboard -->
-<p><a href="{{ url_for('teacher_dashboard') }}">Back to Dashboard</a></p>
+<section class="all-attendance-records-page">
+    <h2>All Attendance Records</h2>
+    <div class="table-responsive">
+        <table class="attendance-records-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in attendance_records %}
+                <tr>
+                    <td>{{ record.date }}</td>
+                    <td>{{ record.student_name }}</td>
+                    <td>{{ record.course_name }}</td>
+                    <td>{{ record.status }}</td>
+                    <td>
+                        <a class="update-link"
+                            href="{{ url_for('update_attendance', attendance_id=record.attendance_id) }}">
+                            Update
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="back-link">
+        <a href="{{ url_for('teacher_dashboard') }}">Back to Dashboard</a>
+    </p>
+</section>
 {% endblock %}

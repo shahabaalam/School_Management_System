@@ -334,6 +334,98 @@ def teacher_dashboard():
 
     return render_template("teacher_dashboard.html", your_courses=your_courses)
 
+@app.route("/teacher/course_grades/<int:course_id>", methods=["GET"])
+def course_grades(course_id):
+    """
+    Displays all enrolled students in a course and their grades.
+    Teacher can add or update a grade for each category.
+    """
+    if "user_id" not in session or session.get("role") != "teacher":
+        return "Access Denied. Teacher Only."
+
+    db = get_db()
+    # Check if the teacher is assigned to this course (optional if you track teacher_id)
+    # For now, skip or do a check if courses.teacher_id == session["user_id"]
+
+    # Fetch course info
+    course = db.execute("SELECT * FROM courses WHERE id = ?", (course_id,)).fetchone()
+    if not course:
+        return "Course not found."
+
+    # Get all enrollments for this course with student user info
+    enrollments = db.execute("""
+        SELECT e.id AS enrollment_id, u.username, u.actual_name
+          FROM enrollments e
+          JOIN users u ON e.user_id = u.id
+         WHERE e.course_id = ?
+    """, (course_id,)).fetchall()
+
+    # We'll also want to fetch existing grades for each enrollment
+    # so teacher can see or update them
+    # Instead of a complicated join, you can fetch them inside the template or do a dictionary approach
+    grades = db.execute("""
+        SELECT g.id, g.enrollment_id, g.grade_value, g.category
+          FROM grades g
+          JOIN enrollments e ON g.enrollment_id = e.id
+         WHERE e.course_id = ?
+    """, (course_id,)).fetchall()
+
+    # For convenience, convert grades into a dict keyed by (enrollment_id, category)
+    grade_dict = {}
+    for g in grades:
+        grade_dict[(g["enrollment_id"], g["category"])] = g["grade_value"]
+
+    return render_template("teacher_course_grades.html",
+                           course=course,
+                           enrollments=enrollments,
+                           grade_dict=grade_dict)
+
+@app.route("/teacher/submit_grades/<int:course_id>", methods=["POST"])
+def submit_grades(course_id):
+    """
+    Processes the teacher's submission for multiple (enrollment_id, category, grade) entries.
+    """
+    if "user_id" not in session or session.get("role") != "teacher":
+        return "Access Denied. Teacher Only."
+
+    db = get_db()
+    # Suppose we get multiple fields in the form: "grade_{enrollment_id}_{category}"
+    # Example key: "grade_5_Assignment" => value "85"
+    for key, value in request.form.items():
+        if key.startswith("grade_"):
+            # parse out enrollment_id and category
+            # e.g. key: "grade_5_Assignment"
+            parts = key.split("_", 2)  # ["grade", "5", "Assignment"]
+            if len(parts) < 3:
+                continue
+            enrollment_id = parts[1]
+            category = parts[2]      # e.g. "Assignment", "Quiz", "Midterm"
+            grade_value = value
+
+            # Check if row exists
+            existing = db.execute("""
+                SELECT id
+                  FROM grades
+                 WHERE enrollment_id = ?
+                   AND category = ?
+            """, (enrollment_id, category)).fetchone()
+
+            if existing:
+                # update
+                db.execute("""
+                    UPDATE grades
+                       SET grade_value = ?
+                     WHERE id = ?
+                """, (grade_value, existing["id"]))
+            else:
+                # insert
+                db.execute("""
+                    INSERT INTO grades (enrollment_id, grade_value, category)
+                    VALUES (?, ?, ?)
+                """, (enrollment_id, grade_value, category))
+    db.commit()
+
+    return redirect(url_for("course_grades", course_id=course_id))
 
 @app.route("/teacher/manage_attendance")
 def teacher_manage_attendance():
@@ -745,6 +837,47 @@ def student_resources(course_id):
 
     # Render a template like "student_course_resources.html" listing them
     return render_template("student_course_resources.html", resources=resources)
+
+@app.route("/student/my_grades")
+def my_grades():
+    """
+    Shows the logged-in student all of their grades by course and category.
+    """
+    if "user_id" not in session or session.get("role") != "student":
+        return "Access Denied. Student Only."
+
+    db = get_db()
+    # fetch courses & grades for this student
+    # step 1: find all enrollments
+    enrollments = db.execute("""
+        SELECT e.id AS enrollment_id, c.name AS course_name, c.semester
+          FROM enrollments e
+          JOIN courses c ON e.course_id = c.id
+         WHERE e.user_id = ?
+    """, (session["user_id"],)).fetchall()
+
+    # step 2: fetch all grades for these enrollments
+    enrollment_ids = [str(e["enrollment_id"]) for e in enrollments]
+    if not enrollment_ids:
+        return "No enrollments found."
+
+    # Convert to comma-separated string if needed, or do a parameterized query
+    in_clause = ",".join(enrollment_ids)  # e.g. "3,4,5"
+    grades = db.execute(f"""
+        SELECT g.enrollment_id, g.category, g.grade_value
+          FROM grades g
+         WHERE g.enrollment_id IN ({in_clause})
+    """).fetchall()
+
+    # Build a structure to map enrollment_id -> {category: grade_value}
+    from collections import defaultdict
+    grades_map = defaultdict(dict)
+    for g in grades:
+        grades_map[g["enrollment_id"]][g["category"]] = g["grade_value"]
+
+    return render_template("student_my_grades.html",
+                           enrollments=enrollments,
+                           grades_map=grades_map)
 
 # -----------------------------
 # MAIN ENTRY

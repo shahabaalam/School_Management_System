@@ -2,36 +2,44 @@
 {% block title %}Mark Attendance{% endblock %}
 
 {% block content %}
-<h2>Mark Attendance for {{ course.name }} ({{ course.semester }})</h2>
-<form method="POST" action="{{ url_for('process_attendance', course_id=course.id) }}">
-    <div>
-        <label for="attendance_date">Date:</label>
-        <input type="date" id="attendance_date" name="attendance_date" required>
-    </div>
-    <hr>
-    <table>
-        <thead>
-            <tr>
-                <th>Student</th>
-                <th>Present</th>
-                <th>Absent</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for e in enrollments %}
-            <tr>
-                <td>{{ e.student_name }}</td>
-                <td>
-                    <input type="radio" name="status_{{ e.enrollment_id }}" value="present" required>
-                </td>
-                <td>
-                    <input type="radio" name="status_{{ e.enrollment_id }}" value="absent" required>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <br>
-    <button type="submit">Submit Attendance</button>
-</form>
+<section class="mark-attendance">
+    <h2>Mark Attendance for {{ course.name }} ({{ course.semester }})</h2>
+    <form method="POST" action="{{ url_for('process_attendance', course_id=course.id) }}" class="attendance-form">
+
+        <div class="form-group">
+            <label for="attendance_date">Date:</label>
+            <input type="date" id="attendance_date" name="attendance_date" required>
+        </div>
+
+        <hr>
+
+        <div class="table-responsive">
+            <table class="attendance-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Present</th>
+                        <th>Absent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in enrollments %}
+                    <tr>
+                        <td>{{ e.student_name }}</td>
+                        <td>
+                            <input type="radio" name="status_{{ e.enrollment_id }}" value="present" required>
+                        </td>
+                        <td>
+                            <input type="radio" name="status_{{ e.enrollment_id }}" value="absent" required>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <br>
+        <button type="submit" class="submit-button">Submit Attendance</button>
+    </form>
+</section>
 {% endblock %}

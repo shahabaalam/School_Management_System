@@ -1,25 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Mark Attendance - KD Academy</title>
+    <!-- Link to your stylesheet here -->
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"> -->
 </head>
 
 <body>
-    <h1>Mark Attendance (Enrollment ID: {{ enrollment_id }})</h1>
-    <form method="POST">
-        <p>Date: <input type="text" name="date" placeholder="YYYY-MM-DD" required></p>
-        <p>Status:
-            <select name="status">
-                <option value="present">Present</option>
-                <option value="absent">Absent</option>
-            </select>
-        </p>
-        <button type="submit">Submit</button>
-    </form>
+    <main class="attendance-page">
+        <section class="attendance-form-section">
+            <h1>Mark Attendance</h1>
+            <p>Enrollment ID: <strong>{{ enrollment_id }}</strong></p>
 
-    <p><a href="{{ url_for('my_enrollments') }}">Back to My Enrollments</a></p>
+            <form method="POST" class="attendance-form">
+                <div class="form-group">
+                    <label for="attendance-date">Date:</label>
+                    <input type="text" id="attendance-date" name="date" placeholder="YYYY-MM-DD" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="attendance-status">Status:</label>
+                    <select id="attendance-status" name="status">
+                        <option value="present">Present</option>
+                        <option value="absent">Absent</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-button">Submit</button>
+            </form>
+
+            <p class="back-link">
+                <a href="{{ url_for('my_enrollments') }}">Back to My Enrollments</a>
+            </p>
+        </section>
+    </main>
 </body>
 
 </html>

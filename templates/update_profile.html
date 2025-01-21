@@ -1,24 +1,36 @@
-<!-- templates/update_profile.html -->
 {% extends "base.html" %}
 {% block title %}Update Profile{% endblock %}
+
 {% block content %}
-<h2>Update Profile</h2>
-<form method="POST" class="login-form">
-    <label>Username</label><br>
-    <input type="text" name="username" value="{{ user.username }}" required><br><br>
+<section class="update-profile-page">
+    <h2>Update Profile</h2>
+    <form method="POST" class="profile-form">
 
-    <label>Actual Name</label><br>
-    <input type="text" name="actual_name" value="{{ user.actual_name or '' }}"><br><br>
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" value="{{ user.username }}" required>
+        </div>
 
-    <!-- New field for OLD (current) password -->
-    <label>Current Password</label><br>
-    <input type="password" name="current_password" required><br><br>
+        <div class="form-group">
+            <label for="actual_name">Actual Name</label>
+            <input type="text" id="actual_name" name="actual_name" value="{{ user.actual_name or '' }}">
+        </div>
 
-    <!-- Field for the new password -->
-    <label>New Password</label><br>
-    <input type="password" name="new_password" required><br><br>
+        <div class="form-group">
+            <label for="current_password">Current Password</label>
+            <input type="password" id="current_password" name="current_password" required>
+        </div>
 
-    <button type="submit">Update Profile</button>
-</form>
-<p><a href="{{ url_for(session['role'] + '_dashboard') }}">Back to Dashboard</a></p>
+        <div class="form-group">
+            <label for="new_password">New Password</label>
+            <input type="password" id="new_password" name="new_password" required>
+        </div>
+
+        <button type="submit" class="submit-button">Update Profile</button>
+    </form>
+
+    <p class="back-link">
+        <a href="{{ url_for(session['role'] + '_dashboard') }}">Back to Dashboard</a>
+    </p>
+</section>
 {% endblock %}

@@ -2,31 +2,36 @@
 {% block title %}Courses{% endblock %}
 
 {% block content %}
-<h2>All Courses</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Semester</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for c in courses %}
-        <tr>
-            <td>{{ c.name }}</td>
-            <td>{{ c.semester }}</td>
-            <td>
-                {% if is_teacher %}
-                <!-- Teacher sees 'Mark Attendance' link -->
-                <a href="{{ url_for('course_attendance', course_id=c.id) }}">Mark Attendance</a>
-                {% else %}
-                <!-- Student sees 'Enroll' link -->
-                <a href="{{ url_for('enroll', course_id=c.id) }}">Enroll</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<section class="courses-list">
+    <h2>All Courses</h2>
+    <div class="table-responsive">
+        <table class="courses-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Semester</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in courses %}
+                <tr>
+                    <td>{{ c.name }}</td>
+                    <td>{{ c.semester }}</td>
+                    <td>
+                        {% if is_teacher %}
+                        <!-- Teacher sees 'Mark Attendance' link -->
+                        <a class="action-link" href="{{ url_for('course_attendance', course_id=c.id) }}">Mark
+                            Attendance</a>
+                        {% else %}
+                        <!-- Student sees 'Enroll' link -->
+                        <a class="action-link" href="{{ url_for('enroll', course_id=c.id) }}">Enroll</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
 {% endblock %}

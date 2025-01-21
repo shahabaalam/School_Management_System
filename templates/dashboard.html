@@ -3,22 +3,27 @@
 {% block title %}Dashboard - KD Academy{% endblock %}
 
 {% block content %}
-<h2>Welcome to your Dashboard!</h2>
-<p>Your role is: <strong>{{ role }}</strong></p>
-<ul>
-    <li><a href="{{ url_for('courses') }}">View Courses</a></li>
-    <li><a href="{{ url_for('my_enrollments') }}">My Enrollments</a></li>
-    {% if role == 'teacher' or role == 'admin' %}
-    <!-- Example: Link to mark attendance for a specific course by ID -->
-    <!-- In a production system, you'd show a list of courses and link to each. -->
-    <!-- For demonstration, you might do something like: -->
-    <li>Teacher's Tools:
+<section class="dashboard">
+    <h2>Welcome to your Dashboard!</h2>
+    <p>Your role is: <strong>{{ role }}</strong></p>
+
+    <nav class="dashboard-nav">
         <ul>
-            <li>Go to <a href="{{ url_for('courses') }}">Courses</a> and from there,
-                you can select a course to mark attendance (Add a link to teacher's course list)
+            <li><a class="nav-link" href="{{ url_for('courses') }}">View Courses</a></li>
+            <li><a class="nav-link" href="{{ url_for('my_enrollments') }}">My Enrollments</a></li>
+
+            {% if role == 'teacher' or role == 'admin' %}
+            <li>
+                Teacher's Tools:
+                <ul>
+                    <li>
+                        Go to <a class="nav-link" href="{{ url_for('courses') }}">Courses</a>. From there,
+                        select a course to mark attendance.
+                    </li>
+                </ul>
             </li>
+            {% endif %}
         </ul>
-    </li>
-    {% endif %}
-</ul>
+    </nav>
+</section>
 {% endblock %}

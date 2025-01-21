@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}My Grades{% endblock %}
+
+{% block content %}
+<section class="my-grades-page">
+    <h2>My Grades</h2>
+
+    {% if not enrollments %}
+    <p>You have no enrolled courses.</p>
+    {% else %}
+    <div class="table-responsive">
+        <table class="grades-table">
+            <thead>
+                <tr>
+                    <th>Course</th>
+                    <th>Assignment</th>
+                    <th>Quiz</th>
+                    <th>Project</th>
+                    <th>Midterm</th>
+                    <th>Final</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in enrollments %}
+                <tr>
+                    <td>{{ e.course_name }} ({{ e.semester }})</td>
+                    <td>
+                        {{ grades_map[e.enrollment_id]['Assignment']
+                        if 'Assignment' in grades_map[e.enrollment_id] else '-' }}
+                    </td>
+                    <td>
+                        {{ grades_map[e.enrollment_id]['Quiz']
+                        if 'Quiz' in grades_map[e.enrollment_id] else '-' }}
+                    </td>
+                    <td>
+                        {{ grades_map[e.enrollment_id]['Project']
+                        if 'Project' in grades_map[e.enrollment_id] else '-' }}
+                    </td>
+                    <td>
+                        {{ grades_map[e.enrollment_id]['Midterm']
+                        if 'Midterm' in grades_map[e.enrollment_id] else '-' }}
+                    </td>
+                    <td>
+                        {{ grades_map[e.enrollment_id]['Final']
+                        if 'Final' in grades_map[e.enrollment_id] else '-' }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <p class="back-link">
+        <a href="{{ url_for('student_dashboard') }}">Back to Dashboard</a>
+    </p>
+</section>
+{% endblock %}

@@ -1,25 +1,46 @@
-<!-- templates/teacher_dashboard.html -->
 {% extends "base.html" %}
 {% block title %}Teacher Dashboard{% endblock %}
 
 {% block content %}
-<h2>Teacher Dashboard</h2>
-<ul>
-    <li><a href="{{ url_for('teacher_manage_attendance') }}">Manage Course Attendance</a></li>
-    <li><a href="{{ url_for('teacher_all_attendance') }}">View/Update All Attendance Records</a></li>
-    <li><a href="{{ url_for('update_profile') }}">Update Profile</a></li>
-</ul>
+<section class="teacher-dashboard">
+    <h2>Teacher Dashboard</h2>
 
-<h3>Your Courses</h3>
-<ul>
-    {% for course in your_courses %}
-    <li>
-        {{ course.name }} ({{ course.semester }})
-        <!-- Clickable button/link for managing PDFs -->
-        <a href="{{ url_for('teacher_course_resources', course_id=course.id) }}">
-            <button type="button">Manage PDFs</button>
-        </a>
-    </li>
-    {% endfor %}
-</ul>
+    <nav class="dashboard-nav">
+        <ul>
+            <li><a class="nav-link" href="{{ url_for('teacher_manage_attendance') }}">Manage Course Attendance</a></li>
+            <li><a class="nav-link" href="{{ url_for('teacher_all_attendance') }}">View/Update All Attendance
+                    Records</a></li>
+            <li><a class="nav-link" href="{{ url_for('update_profile') }}">Update Profile</a></li>
+        </ul>
+    </nav>
+
+    <section class="courses-section">
+        <h3>Your Courses</h3>
+        <ul class="courses-list">
+            {% for course in your_courses %}
+            <li class="course-item">
+                <span>{{ course.name }} ({{ course.semester }})</span>
+                <a class="pdf-button" href="{{ url_for('teacher_course_resources', course_id=course.id) }}">
+                    <button type="button">Manage PDFs</button>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section class="grading-section">
+        <h3>Your Courses for Grading</h3>
+        <div class="card">
+            <ul class="grading-list">
+                {% for course in your_courses %}
+                <li class="grading-item">
+                    <span>{{ course.name }} ({{ course.semester }})</span>
+                    | <a class="grades-link" href="{{ url_for('course_grades', course_id=course.id) }}">Manage
+                        Grades</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
+</section>
 {% endblock %}
