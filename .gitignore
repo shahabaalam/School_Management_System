@@ -6,3 +6,6 @@ __pycache__/
 
 # Ignore the database file
 academy.db
+
+# Ignore the Uploads file
+uploads/
