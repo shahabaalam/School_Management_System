@@ -8,3 +8,6 @@ __pycache__/
 
 # Ignore the Uploads file
 uploads/
+
+# Ignore environment variables file
+.env

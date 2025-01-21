@@ -3,10 +3,16 @@ from flask import Flask, render_template, request, redirect, url_for, session, g
 import os
 from flask import send_file
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key_here"  # Replace with a secure, random key
-DATABASE = "academy.db"
+
+# Use environment variables for sensitive configurations
+app.secret_key = os.getenv("SECRET_KEY", "fallback_secret_key")  # Fallback in case .env is missing
+DATABASE = os.getenv("DATABASE_URL", "academy.db")
 
 # Add or update this in app.py:
 UPLOAD_FOLDER = 'uploads'  # or any directory name you prefer
