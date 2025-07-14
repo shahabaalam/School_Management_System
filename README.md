@@ -166,12 +166,6 @@ If you find any bugs or issues, please open an issue in the GitHub repository wi
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
----
-
 ## 📧 Contact
 
 If you have any questions or suggestions, feel free to reach out:
